@@ -50,6 +50,7 @@ SIMPLE_JWT = {
     'SIGNING_KEY': 'veryverysecretkey',
 }
 
+AUTH_USER_MODEL = 'lmsmain.User'
 
 # Application definition
 
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'lmsmain',
 ]
 
 MIDDLEWARE = [
