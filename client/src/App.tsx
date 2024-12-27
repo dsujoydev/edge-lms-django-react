@@ -1,9 +1,10 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import { RegistrationForm } from "./components/custom/RegistrationForm";
 import { SignInForm } from "./components/custom/SignInForm";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "./hooks/useAuth";
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated } = useAuth();
