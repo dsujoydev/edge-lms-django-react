@@ -19,7 +19,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    # permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
 
 class UserDeleteView(generics.DestroyAPIView):
     queryset = User.objects.all()
