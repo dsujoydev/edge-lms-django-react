@@ -24,16 +24,16 @@ class CourseSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['instructor', 'created_at', 'enrolled_students_count']
 
-    def get_instructor_name(self, obj):
+    def get_instructor_name(self, obj: Course) -> str:
         return f"{obj.instructor.first_name} {obj.instructor.last_name}" if obj.instructor else ""
 
-    def get_is_enrolled(self, obj):
+    def get_is_enrolled(self, obj: Course) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.students.filter(id=request.user.id).exists()
         return False
 
-    def get_available_slots(self, obj):
+    def get_available_slots(self, obj: Course) -> int:
         if obj.max_students:
             return max(0, obj.max_students - obj.enrolled_students_count)
         return None  # Unlimited slots
