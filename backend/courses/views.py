@@ -2,24 +2,27 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from .models import Course, Enrollment
 from .serializers import CourseSerializer, EnrollmentSerializer
 from .permissions import IsAdminOrInstructor, IsInstructorForCourse, CanEnrollCourse
 from django.db.models import Count, Q
+from datetime import datetime, timedelta
 
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
-    queryset = Course.objects.all()
+    queryset = Course.objects.all().select_related('instructor').prefetch_related('enrollment_set')
+
+    PERMISSION_CLASSES = {
+        'create': [IsAdminOrInstructor],
+        'update': [IsAdminOrInstructor, IsInstructorForCourse],
+        'partial_update': [IsAdminOrInstructor, IsInstructorForCourse],
+        'destroy': [IsAdminOrInstructor, IsInstructorForCourse],
+        'enroll': [CanEnrollCourse],
+    }
 
     def get_permissions(self):
-        if self.action in ['create']:
-            permission_classes = [IsAdminOrInstructor]
-        elif self.action in ['update', 'partial_update', 'destroy']:
-            permission_classes = [IsAdminOrInstructor, IsInstructorForCourse]
-        elif self.action in ['enroll']:
-            permission_classes = [CanEnrollCourse]
-        else:
-            permission_classes = [permissions.IsAuthenticated]
+        permission_classes = self.PERMISSION_CLASSES.get(self.action, [permissions.IsAuthenticated])
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
@@ -62,17 +65,11 @@ class CourseViewSet(viewsets.ModelViewSet):
         course = self.get_object()
         instructor_id = request.data.get('instructor_id')
         
-        try:
-            instructor = User.objects.get(id=instructor_id, user_type='instructor')
-            course.instructor = instructor
-            course.save()
-            return Response({'detail': 'Instructor assigned successfully.'})
-        except User.DoesNotExist:
-            return Response(
-                {'detail': 'Invalid instructor ID.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+        instructor = get_object_or_404(User, id=instructor_id, user_type='instructor')
+        course.instructor = instructor
+        course.save()
+        return Response({'detail': 'Instructor assigned successfully.'})
+
     @action(detail=True, methods=['get'])
     def enrollment_stats(self, request, pk=None):
         course = self.get_object()
