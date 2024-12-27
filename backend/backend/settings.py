@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'lmsmain',
+    'courses',
 ]
 
 MIDDLEWARE = [

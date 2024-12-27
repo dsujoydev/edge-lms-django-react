@@ -3,12 +3,116 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from .models import Course, Enrollment
-from .serializers import CourseSerializer, EnrollmentSerializer
+from .models import Course, Enrollment, Module
+from .serializers import CourseSerializer, EnrollmentSerializer, ModuleSerializer
 from .permissions import IsAdminOrInstructor, IsInstructorForCourse, CanEnrollCourse
 from django.db.models import Count, Q
 from datetime import datetime, timedelta
 
+class ModuleViewSet(viewsets.ModelViewSet):
+   serializer_class = ModuleSerializer
+   permission_classes = [IsAdminOrInstructor]
+
+   def get_queryset(self):
+       if getattr(self, 'swagger_fake_view', False):
+           # queryset just for schema generation metadata
+           return Module.objects.none()
+       
+       # Get modules for a specific course
+       course_id = self.kwargs.get('course_pk') or self.request.query_params.get('course_id')
+       if course_id:
+           return Module.objects.filter(course_id=course_id).order_by('order')
+       return Module.objects.all().order_by('order')
+
+   def create(self, request, *args, **kwargs):
+       course_id = self.kwargs.get('course_pk') or request.data.get('course_id')
+       if not course_id:
+           return Response(
+               {'error': 'Course ID is required'}, 
+               status=status.HTTP_400_BAD_REQUEST
+           )
+
+       course = get_object_or_404(Course, id=course_id)
+       
+       # Check if user is admin or the course instructor
+       if not (request.user.user_type == 'admin' or course.instructor == request.user):
+           return Response(
+               {'error': 'You do not have permission to add modules to this course'}, 
+               status=status.HTTP_403_FORBIDDEN
+           )
+
+       # Auto-set the order if not provided
+       if 'order' not in request.data:
+           last_module = Module.objects.filter(course=course).order_by('-order').first()
+           order = (last_module.order + 1) if last_module else 1
+           request.data['order'] = order
+
+       serializer = self.get_serializer(data=request.data)
+       serializer.is_valid(raise_exception=True)
+       serializer.save(course=course)
+
+       return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+   def update(self, request, *args, **kwargs):
+       module = self.get_object()
+       course = module.course
+
+       # Check if user is admin or the course instructor
+       if not (request.user.user_type == 'admin' or course.instructor == request.user):
+           return Response(
+               {'error': 'You do not have permission to modify this module'}, 
+               status=status.HTTP_403_FORBIDDEN
+           )
+
+       return super().update(request, *args, **kwargs)
+
+   def destroy(self, request, *args, **kwargs):
+       module = self.get_object()
+       course = module.course
+
+       # Check if user is admin or the course instructor
+       if not (request.user.user_type == 'admin' or course.instructor == request.user):
+           return Response(
+               {'error': 'You do not have permission to delete this module'}, 
+               status=status.HTTP_403_FORBIDDEN
+           )
+
+       # Reorder remaining modules
+       modules_to_update = Module.objects.filter(
+           course=course, 
+           order__gt=module.order
+       )
+       for mod in modules_to_update:
+           mod.order -= 1
+           mod.save()
+
+       return super().destroy(request, *args, **kwargs)
+
+   def reorder_modules(self, request, course_pk=None):
+       """
+       Reorder modules within a course
+       Expected format: {"module_orders": [{"id": 1, "order": 2}, {"id": 2, "order": 1}]}
+       """
+       course = get_object_or_404(Course, pk=course_pk)
+       
+       if not (request.user.user_type == 'admin' or course.instructor == request.user):
+           return Response(
+               {'error': 'You do not have permission to reorder modules'}, 
+               status=status.HTTP_403_FORBIDDEN
+           )
+
+       module_orders = request.data.get('module_orders', [])
+       
+       for module_data in module_orders:
+           module = get_object_or_404(Module, id=module_data['id'], course=course)
+           module.order = module_data['order']
+           module.save()
+
+       # Return updated module list
+       modules = Module.objects.filter(course=course).order_by('order')
+       serializer = self.get_serializer(modules, many=True)
+       
+       return Response(serializer.data)
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.all().select_related('instructor').prefetch_related('enrollment_set')
@@ -101,3 +205,33 @@ class CourseViewSet(viewsets.ModelViewSet):
         ).values('course_code', 'title', 'student_count', 'completed_count')
         
         return Response(overview)
+
+    @action(detail=True, methods=['get'])
+    def modules(self, request, pk=None):
+       course = self.get_object()
+       modules = course.modules.all().order_by('order')
+       serializer = ModuleSerializer(modules, many=True)
+       return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def add_module(self, request, pk=None):
+       course = self.get_object()
+       
+       # Check permissions
+       if not (request.user.user_type == 'admin' or course.instructor == request.user):
+           return Response(
+               {'error': 'You do not have permission to add modules'}, 
+               status=status.HTTP_403_FORBIDDEN
+           )
+
+       # Auto-set the order if not provided
+       if 'order' not in request.data:
+           last_module = course.modules.order_by('-order').first()
+           order = (last_module.order + 1) if last_module else 1
+           request.data['order'] = order
+
+       serializer = ModuleSerializer(data=request.data)
+       if serializer.is_valid():
+           serializer.save(course=course)
+           return Response(serializer.data, status=status.HTTP_201_CREATED)
+       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

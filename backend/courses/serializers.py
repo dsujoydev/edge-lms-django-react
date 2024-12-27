@@ -3,9 +3,11 @@ from rest_framework import serializers
 from .models import Course, Module, Enrollment
 
 class ModuleSerializer(serializers.ModelSerializer):
+    course = serializers.CharField(source='course.title', read_only=True)
+
     class Meta:
         model = Module
-        fields = ['id', 'title', 'description', 'order', 'is_published']
+        fields = ['id', 'title', 'description', 'order', 'is_published', 'course']
 
 class CourseSerializer(serializers.ModelSerializer):
     instructor_name = serializers.SerializerMethodField()
