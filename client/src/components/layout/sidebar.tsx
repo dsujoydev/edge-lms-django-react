@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 // Define role types
 type Role = "admin" | "instructor" | "student";
@@ -14,14 +15,14 @@ interface NavItem {
 // Define the navigation items object with strict typing
 const navItems: Record<Role, NavItem[]> = {
   admin: [
-    { icon: "", label: "Overview", href: "/" },
-    { icon: "", label: "Users", href: "/users" },
-    { icon: "", label: "Courses", href: "/courses" },
+    { icon: "", label: "Overview", href: "/dashboard" },
+    { icon: "", label: "Users", href: "/dashboard/users" },
+    { icon: "", label: "Courses", href: "/dashboard/courses" },
     { icon: "", label: "Settings", href: "/settings" },
   ],
   instructor: [
     { icon: "", label: "Dashboard", href: "/" },
-    { icon: "", label: "My Courses", href: "/courses" },
+    { icon: "", label: "My Courses", href: "/dashboard/courses" },
     { icon: "", label: "Calendar", href: "/calendar" },
     { icon: "", label: "Messages", href: "/messages" },
   ],
@@ -40,6 +41,7 @@ interface SidebarProps {
 
 export function Sidebar({ role }: SidebarProps) {
   const items = navItems[role] || [];
+  const navigate = useNavigate();
 
   return (
     <div className="pb-12 min-h-screen w-40 border-r">
@@ -51,6 +53,7 @@ export function Sidebar({ role }: SidebarProps) {
                 key={item.href}
                 variant="ghost"
                 className={cn("w-full justify-start gap-2", location.pathname === item.href && "bg-accent")}
+                onClick={() => navigate(item.href)}
               >
                 {item.label}
               </Button>

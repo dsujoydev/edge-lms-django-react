@@ -43,7 +43,7 @@ export function CourseCard({ course }: CourseCardProps) {
       </CardContent>
       <CardFooter className="border-t bg-muted/50 p-4">
         <div className="flex w-full items-center justify-between">
-          <p className="text-sm text-muted-foreground">{course.modules} modules</p>
+          <p className="text-sm text-muted-foreground">12{course.modules} modules</p>
           <p className="text-sm text-muted-foreground">{course.enrolled_students_count} students</p>
         </div>
       </CardFooter>

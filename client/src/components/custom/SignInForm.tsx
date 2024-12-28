@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +43,12 @@ export function SignInForm() {
             Sign In
           </Button>
           {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+          <p className="text-sm mt-2">
+            New user?{" "}
+            <Link to="/register" className="text-blue-500">
+              Register here
+            </Link>
+          </p>
         </>
       }
     >
