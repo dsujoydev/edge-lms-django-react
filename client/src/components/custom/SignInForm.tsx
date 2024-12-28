@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginUser } from "../../utils/auth";
 import { CardComponent } from "./CardComponent";
+import { useAuth } from "@/hooks/useAuth";
 
 export function SignInForm() {
   const [formData, setFormData] = useState({
@@ -18,16 +19,17 @@ export function SignInForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const { login } = useAuth();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const data = await loginUser(formData.username, formData.password);
-      localStorage.setItem("accessToken", data.access);
-      localStorage.setItem("refreshToken", data.refresh);
+      await login(data.access, data.refresh); // Triggers token setting and profile fetching
       navigate("/dashboard");
     } catch (err) {
       setError("Invalid credentials or an error occurred. Please try again.");
-      console.log(err);
+      console.error(err);
     }
   };
 

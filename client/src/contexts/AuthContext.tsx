@@ -7,7 +7,6 @@ enum UserType {
   ADMIN = "administrator",
 }
 
-// Interface for basic user data
 interface User {
   id: number;
   username: string;
@@ -29,10 +28,8 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
-// Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// AuthProvider component
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -50,14 +47,15 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   }, []);
 
   const login = async (accessToken: string, refreshToken: string) => {
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
     setIsLoading(true);
     try {
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
       const userData = await fetchUserProfile();
       setUser(userData);
     } catch (error) {
-      console.error(error);
+      console.error("Error during login:", error);
+      logout();
     } finally {
       setIsLoading(false);
     }
@@ -80,5 +78,4 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Export `AuthContext` and `AuthProvider`
 export { AuthContext, AuthProvider };

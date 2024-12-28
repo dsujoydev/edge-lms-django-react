@@ -42,7 +42,7 @@ export function Sidebar({ role }: SidebarProps) {
   const items = navItems[role] || [];
 
   return (
-    <div className="pb-12 min-h-screen w-64 border-r">
+    <div className="pb-12 min-h-screen w-40 border-r">
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <div className="space-y-1">
