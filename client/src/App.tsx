@@ -5,10 +5,15 @@ import { RegistrationForm } from "./components/custom/RegistrationForm";
 import { SignInForm } from "./components/custom/SignInForm";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "./hooks/useAuth";
+import { DashboardLayout } from "./components/layout/dashboard-layout";
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
-  const { isAuthenticated } = useAuth();
-  console.log(isAuthenticated);
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+
   return isAuthenticated ? element : <Navigate to="/login" />;
 };
 
@@ -16,10 +21,12 @@ const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   console.log(user);
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Welcome, {user?.username}!</h1>
-      <Button onClick={logout}>Logout</Button>
-    </div>
+    <DashboardLayout>
+      <div className="p-8">
+        <h1 className="text-2xl font-bold mb-4">Welcome, {user?.username}!</h1>
+        <Button onClick={logout}>Logout</Button>
+      </div>
+    </DashboardLayout>
   );
 };
 
