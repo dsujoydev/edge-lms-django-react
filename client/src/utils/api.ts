@@ -1,8 +1,10 @@
 import axios from "axios";
 import { refreshAccessToken } from "./auth";
 
+const choreoApi = "/choreo-apis/lmsdjangoreact/lms-backend/v1";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL as string,
+  baseURL: import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL : (choreoApi as string),
   headers: {
     "Content-Type": "application/json",
   },
