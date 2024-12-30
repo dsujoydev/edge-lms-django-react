@@ -15,20 +15,32 @@ import api from "@/utils/api";
 import { CreateCourseForm } from "./CreateCourseForm";
 // import { useToast } from "@/hooks/use-toast";
 
-interface Course {
+interface Module {
   id: number;
+  title: string;
+  description: string;
+  order: number;
+  is_published: boolean;
+  course: string;
+}
+
+interface Course {
+  id: number | string;
   course_code: string;
   title: string;
   description: string;
   short_description: string;
+  instructor: string | null; // Nullable
   instructor_name: string;
   enrolled_students_count: number;
-  modules: number;
+  is_enrolled: boolean;
+  modules?: Module[]; // Array of Module objects
   is_active: boolean;
-  start_date: string;
-  end_date: string;
+  start_date: string; // ISO date string
+  end_date: string; // ISO date string
   max_students: number;
   available_slots: number;
+  created_at: string; // ISO timestamp string
 }
 
 export function CoursesList() {
@@ -82,7 +94,7 @@ export function CoursesList() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
-          <CourseCard key={course.id} course={course} />
+          <CourseCard key={course.id} courseData={course} />
         ))}
       </div>
     </div>
