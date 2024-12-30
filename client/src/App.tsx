@@ -9,6 +9,7 @@ import { DashboardLayout } from "./components/layout/dashboard-layout";
 import { CoursesList } from "./components/custom/CoursesList";
 import Overview from "./pages/Overview";
 import UsersList from "./pages/UsersList";
+import { Toast, ToastProvider } from "./components/ui/toast";
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -28,7 +29,10 @@ const Dashboard: React.FC = () => {
       <div className="p-8">
         <h1 className="text-2xl font-bold mb-4">Welcome, {user?.username}!</h1>
         {/* <Button onClick={logout}>Logout</Button> */}
-        <Outlet />
+        <ToastProvider>
+          <Outlet />
+          <Toast />
+        </ToastProvider>
       </div>
     </DashboardLayout>
   );
