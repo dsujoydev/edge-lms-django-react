@@ -10,6 +10,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('profile/', UserProfileView.as_view(), name='profile'),
     path('profile/<str:username>/', UserDetailView.as_view(), name='profile-detail'),
-    path('users/', UserListView.as_view(), name='user_list'),
+    path('list/', UserListView.as_view(), name='user_list'),
     path('users/<int:pk>/', UserDeleteView.as_view(), name='user_delete'),
 ]

@@ -19,7 +19,7 @@ const UsersList: React.FC = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await api.get("/api/users/users/");
+        const response = await api.get("/api/users/list/");
         console.log(response);
         setUsers(response.data);
       } catch (error) {
