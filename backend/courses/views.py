@@ -1,3 +1,5 @@
+# views.py
+from django.contrib.auth import get_user_model
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,6 +11,7 @@ from .models import Course, Enrollment, Module
 from .serializers import CourseSerializer, EnrollmentSerializer, ModuleSerializer
 from .permissions import IsAdminOrInstructor, IsInstructorForCourse, CanEnrollCourse
 
+User = get_user_model()
 
 class ModuleViewSet(viewsets.ModelViewSet):
     serializer_class = ModuleSerializer
@@ -17,22 +20,31 @@ class ModuleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if getattr(self, 'swagger_fake_view', False):
             return Module.objects.none()
-
-        course_id = self.kwargs.get('course_pk') or self.request.query_params.get('course_id')
+        
+        course_id = self.request.query_params.get('course_id')
         if course_id:
             return Module.objects.filter(course_id=course_id).order_by('order')
         return Module.objects.all().order_by('order')
 
     def create(self, request, *args, **kwargs):
-        course_id = self.kwargs.get('course_pk') or request.data.get('course_id')
+        course_id = request.data.get('course_id')
         if not course_id:
-            return Response({'error': 'Course ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'course_id is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         course = get_object_or_404(Course, id=course_id)
+        
+        # Check permissions
+        if not (request.user.user_type == 'admin' or 
+                course.instructor == request.user):
+            return Response(
+                {'error': 'You do not have permission to add modules to this course'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
-        if not (request.user.user_type == 'admin' or course.instructor == request.user):
-            return Response({'error': 'You do not have permission to add modules to this course'}, status=status.HTTP_403_FORBIDDEN)
-
+        # Auto-assign order if not provided
         if 'order' not in request.data:
             last_module = Module.objects.filter(course=course).order_by('-order').first()
             order = (last_module.order + 1) if last_module else 1
@@ -48,8 +60,12 @@ class ModuleViewSet(viewsets.ModelViewSet):
         module = self.get_object()
         course = module.course
 
-        if not (request.user.user_type == 'admin' or course.instructor == request.user):
-            return Response({'error': 'You do not have permission to modify this module'}, status=status.HTTP_403_FORBIDDEN)
+        if not (request.user.user_type == 'admin' or 
+                course.instructor == request.user):
+            return Response(
+                {'error': 'You do not have permission to modify this module'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         return super().update(request, *args, **kwargs)
 
@@ -57,10 +73,19 @@ class ModuleViewSet(viewsets.ModelViewSet):
         module = self.get_object()
         course = module.course
 
-        if not (request.user.user_type == 'admin' or course.instructor == request.user):
-            return Response({'error': 'You do not have permission to delete this module'}, status=status.HTTP_403_FORBIDDEN)
+        if not (request.user.user_type == 'admin' or 
+                course.instructor == request.user):
+            return Response(
+                {'error': 'You do not have permission to delete this module'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
-        modules_to_update = Module.objects.filter(course=course, order__gt=module.order)
+        # Update order of remaining modules
+        modules_to_update = Module.objects.filter(
+            course=course,
+            order__gt=module.order
+        )
+        
         for mod in modules_to_update:
             mod.order -= 1
             mod.save()
@@ -68,39 +93,71 @@ class ModuleViewSet(viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
     @action(detail=False, methods=['post'])
-    def reorder_modules(self, request, course_pk=None):
-        course = get_object_or_404(Course, pk=course_pk)
+    def reorder(self, request):
+        course_id = request.data.get('course_id')
+        if not course_id:
+            return Response(
+                {'error': 'course_id is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        if not (request.user.user_type == 'admin' or course.instructor == request.user):
-            return Response({'error': 'You do not have permission to reorder modules'}, status=status.HTTP_403_FORBIDDEN)
+        course = get_object_or_404(Course, id=course_id)
+
+        if not (request.user.user_type == 'admin' or 
+                course.instructor == request.user):
+            return Response(
+                {'error': 'You do not have permission to reorder modules'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         module_orders = request.data.get('module_orders', [])
+        if not module_orders:
+            return Response(
+                {'error': 'module_orders is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
+        # Validate all modules exist and belong to this course
+        module_ids = [item['id'] for item in module_orders]
+        existing_modules = Module.objects.filter(
+            id__in=module_ids,
+            course=course
+        )
+        
+        if len(existing_modules) != len(module_ids):
+            return Response(
+                {'error': 'Invalid module IDs provided'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Update orders
         for module_data in module_orders:
-            module = get_object_or_404(Module, id=module_data['id'], course=course)
+            module = next(m for m in existing_modules if m.id == module_data['id'])
             module.order = module_data['order']
             module.save()
 
         modules = Module.objects.filter(course=course).order_by('order')
         serializer = self.get_serializer(modules, many=True)
-
         return Response(serializer.data)
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
-    queryset = Course.objects.all().select_related('instructor').prefetch_related('enrollment_set')
-
-    PERMISSION_CLASSES = {
-        'create': [IsAdminOrInstructor],
-        'update': [IsAdminOrInstructor, IsInstructorForCourse],
-        'partial_update': [IsAdminOrInstructor, IsInstructorForCourse],
-        'destroy': [IsAdminOrInstructor, IsInstructorForCourse],
-        'enroll': [CanEnrollCourse],
-    }
+    queryset = Course.objects.all().select_related('instructor').prefetch_related(
+        'enrollment_set'
+    )
 
     def get_permissions(self):
-        permission_classes = self.PERMISSION_CLASSES.get(self.action, [permissions.IsAuthenticated])
+        if self.action == 'assign_instructor':
+            permission_classes = [permissions.IsAdminUser]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            permission_classes = [IsAdminOrInstructor, IsInstructorForCourse]
+        elif self.action == 'create':
+            permission_classes = [IsAdminOrInstructor]
+        elif self.action == 'enroll':
+            permission_classes = [CanEnrollCourse]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
@@ -108,7 +165,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         if user.user_type == 'student':
             return Course.objects.filter(is_active=True)
         elif user.user_type == 'instructor':
-            return Course.objects.filter(instructor=user)
+            return Course.objects.filter(Q(instructor=user) | Q(is_active=True))
         return Course.objects.all()
 
     def perform_create(self, serializer):
@@ -120,78 +177,54 @@ class CourseViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def enroll(self, request, pk=None):
         course = self.get_object()
-        student = request.user
+        
+        if Enrollment.objects.filter(
+            course=course,
+            student=request.user
+        ).exists():
+            return Response(
+                {'detail': 'Already enrolled in this course.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        if Enrollment.objects.filter(course=course, student=student).exists():
-            return Response({'detail': 'Already enrolled in this course.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not course.has_available_slots:
+            return Response(
+                {'detail': 'Course has reached maximum enrollment.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        enrollment = Enrollment.objects.create(course=course, student=student)
+        enrollment = Enrollment.objects.create(
+            course=course,
+            student=request.user
+        )
+        
         serializer = EnrollmentSerializer(enrollment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
     def assign_instructor(self, request, pk=None):
-        if request.user.user_type != 'admin':
-            return Response({'detail': 'Only admin can assign instructors.'}, status=status.HTTP_403_FORBIDDEN)
-
         course = self.get_object()
         instructor_id = request.data.get('instructor_id')
+        
+        if not instructor_id:
+            return Response(
+                {'error': 'instructor_id is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        instructor = get_object_or_404(User, id=instructor_id, user_type='instructor')
+        try:
+            instructor = User.objects.get(
+                id=instructor_id,
+                user_type='instructor'
+            )
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'Invalid instructor ID or user is not an instructor'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
         course.instructor = instructor
         course.save()
-        return Response({'detail': 'Instructor assigned successfully.'})
-
-    @action(detail=True, methods=['get'])
-    def enrollment_stats(self, request, pk=None):
-        course = self.get_object()
-        today = datetime.now()
-        last_month = today - timedelta(days=30)
-
-        stats = {
-            'total_enrolled': course.enrolled_students_count,
-            'available_slots': course.max_students - course.enrolled_students_count if course.max_students else None,
-            'completion_rate': course.enrollment_set.filter(is_completed=True).count() / course.enrolled_students_count if course.enrolled_students_count > 0 else 0,
-            'recent_enrollments': course.enrollment_set.filter(enrolled_at__gte=last_month).count(),
-            'active_students': course.enrollment_set.filter(last_accessed__gte=last_month).count()
-        }
-
-        return Response(stats)
-
-    @action(detail=False, methods=['get'])
-    def enrollment_overview(self, request):
-        if request.user.user_type not in ['admin', 'instructor']:
-            return Response({'detail': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
-
-        courses = self.get_queryset()
-        overview = courses.annotate(
-            student_count=Count('students'),
-            completed_count=Count('enrollment', filter=Q(enrollment__is_completed=True))
-        ).values('course_code', 'title', 'student_count', 'completed_count')
-
-        return Response(overview)
-
-    @action(detail=True, methods=['get'])
-    def modules(self, request, pk=None):
-        course = self.get_object()
-        modules = course.modules.all().order_by('order')
-        serializer = ModuleSerializer(modules, many=True)
+        
+        serializer = self.get_serializer(course)
         return Response(serializer.data)
-
-    @action(detail=True, methods=['post'])
-    def add_module(self, request, pk=None):
-        course = self.get_object()
-
-        if not (request.user.user_type == 'admin' or course.instructor == request.user):
-            return Response({'error': 'You do not have permission to add modules'}, status=status.HTTP_403_FORBIDDEN)
-
-        if 'order' not in request.data:
-            last_module = course.modules.order_by('-order').first()
-            order = (last_module.order + 1) if last_module else 1
-            request.data['order'] = order
-
-        serializer = ModuleSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(course=course)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

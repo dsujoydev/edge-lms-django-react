@@ -10,6 +10,7 @@ import { CoursesList } from "./components/custom/CoursesList";
 import Overview from "./pages/Overview";
 import UsersList from "./pages/UsersList";
 import { Toast, ToastProvider } from "./components/ui/toast";
+import CourseDetails from "./pages/CourseDetails";
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -51,6 +52,7 @@ const App: React.FC = () => {
               <Route index element={<Overview />} /> {/* Default to Overview */}
               <Route path="courses" element={<CoursesList />} />
               <Route path="users" element={<UsersList />} />
+              <Route path="courses/:courseId" element={<CourseDetails />} />
             </Route>
             <Route path="/" element={<Navigate to="/login" />} />
           </Routes>
