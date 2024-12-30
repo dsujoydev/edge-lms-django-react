@@ -33,3 +33,18 @@ Edge LMS is a Learning Management System built using Django for the backend and 
 ## Contact
 
 For any inquiries, please contact us at [dsujoy.cse@gmail.com](mailto:dsujoy.cse@gmail.com).
+
+## Screenshots
+
+### Postman API Testing
+
+Here are some screenshots showing how the APIs are tested using Postman:
+
+![Postman API Testing](screenshots/users/register.png)
+
+### Frontend Interface
+
+Below are some screenshots of the frontend interface demonstrating the API integration:
+
+![Frontend Interface](path/to/frontend-screenshot1.png)
+![Frontend Interface](path/to/frontend-screenshot2.png)
