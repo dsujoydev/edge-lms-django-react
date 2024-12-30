@@ -9,4 +9,10 @@ router.register(r'modules', ModuleViewSet, basename='module')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path(
+    'courses/<int:pk>/assign-instructor/', 
+    CourseViewSet.as_view({'post': 'assign_instructor'}), 
+    name='course-assign-instructor'
+)
+    
 ]

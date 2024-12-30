@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 from .models import Course, Enrollment, Module
 from .serializers import CourseSerializer, EnrollmentSerializer, ModuleSerializer
-from .permissions import IsAdminOrInstructor, IsInstructorForCourse, CanEnrollCourse
+from .permissions import IsAdminOrInstructor, IsInstructorForCourse, CanEnrollCourse, IsAdmin
 
 User = get_user_model()
 
@@ -149,7 +149,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'assign_instructor':
-            permission_classes = [permissions.IsAdminUser]
+            permission_classes = [IsAdmin]
         elif self.action in ['update', 'partial_update', 'destroy']:
             permission_classes = [IsAdminOrInstructor, IsInstructorForCourse]
         elif self.action == 'create':
@@ -203,9 +203,15 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def assign_instructor(self, request, pk=None):
+        if pk is None:
+            return Response(
+                {'error': 'Course ID is required in the URL.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         course = self.get_object()
+
         instructor_id = request.data.get('instructor_id')
-        
         if not instructor_id:
             return Response(
                 {'error': 'instructor_id is required'},
@@ -225,6 +231,6 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         course.instructor = instructor
         course.save()
-        
+
         serializer = self.get_serializer(course)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)

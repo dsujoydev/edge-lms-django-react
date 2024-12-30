@@ -28,3 +28,10 @@ class CanEnrollCourse(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.user_type == USER_TYPE_STUDENT
+
+class IsAdmin(permissions.BasePermission):
+    """
+    Allows access only to admin users.
+    """
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.user_type == USER_TYPE_ADMIN
