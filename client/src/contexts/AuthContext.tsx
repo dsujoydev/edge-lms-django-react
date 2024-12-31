@@ -11,9 +11,9 @@ interface User {
   id: number;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  userType: UserType;
+  first_name: string;
+  last_name: string;
+  user_type: UserType;
   profilePicture?: string | null;
   bio?: string;
   dateJoined?: string;

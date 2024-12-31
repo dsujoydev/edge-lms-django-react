@@ -4,19 +4,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 
 export function Header() {
-  // Mock user data - replace with actual auth
-  // const user = {
-  //   name: "John Doe",
-  //   email: "john@example.com",
-  //   avatar:
-  //     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  // };
-
   const { user, logout } = useAuth();
 
   const avatar =
@@ -30,10 +23,11 @@ export function Header() {
         </div>
 
         <DropdownMenu>
+          <DropdownMenuLabel>{user?.first_name + " " + user?.last_name}</DropdownMenuLabel>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar>
-                <AvatarImage src={avatar} alt={user?.firstName} />
+                <AvatarImage src={avatar} alt={user?.first_name} />
                 <AvatarFallback>{user?.username.charAt(0)}</AvatarFallback>
               </Avatar>
             </Button>

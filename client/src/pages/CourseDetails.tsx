@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -31,7 +31,7 @@ function CourseDetails() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchCourse = async () => {
+  const fetchCourse = useCallback(async () => {
     try {
       const response = await api.get(`/api/courses/${courseId}/`);
       setCourse(response.data);
@@ -46,7 +46,7 @@ function CourseDetails() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId, toast]);
 
   useEffect(() => {
     if (courseId) {
@@ -55,89 +55,119 @@ function CourseDetails() {
       setError("Course ID is missing.");
       setLoading(false);
     }
-  }, [courseId]);
+  }, [courseId, fetchCourse]);
 
-  if (loading) return <div className="flex justify-center items-center h-screen">Loading......</div>;
-  if (error) return <div className="flex justify-center items-center h-screen text-red-500">Error: {error}</div>;
-  if (!course) return <div className="flex justify-center items-center h-screen">Course not found.</div>;
+  if (loading) return <LoadingScreen message="Loading course details..." />;
+  if (error) return <ErrorScreen message={error} />;
+  if (!course) return <NotFoundScreen message="Course not found." />;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-6">
-        {/* Course Header */}
-        <div className="flex justify-between items-start">
-          <div className="flex gap-2">
-            <h1 className="text-3xl font-bold">{course.title}</h1>
-            <p className="text-xl text-muted-foreground mt-2">({course.course_code})</p>
-          </div>
-          <Badge variant={course.is_active ? "destructive" : "default"}>
-            {course.is_active ? "Active" : "Inactive"}
-          </Badge>
-        </div>
-
+        <CourseHeader course={course} />
         <Separator />
-
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Course Details</h2>
-          <p>{course.description}</p>
-          <div className="flex items-center space-x-2">
-            <CalendarIcon className="h-5 w-5 text-muted-foreground" />
-            <span>Start: {new Date(course.start_date).toLocaleDateString()}</span>
-            <CalendarIcon className="h-5 w-5 text-muted-foreground" />
-            <span>End: {new Date(course.end_date).toLocaleDateString()}</span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Users className="h-5 w-5 text-muted-foreground" />
-            <span>
-              Available Slots: {course.available_slots}/{course.max_students}
-            </span>
-          </div>
-          {course.instructor && (
-            <div className="flex items-center space-x-2">
-              <BookOpen className="h-5 w-5 text-muted-foreground" />
-              <span>Instructor: {course.instructor}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Course Details */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Modules Section */}
-
-          <h2 className="text-xl font-semibold">Modules</h2>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>Add Module</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Module</DialogTitle>
-              </DialogHeader>
-              <ModuleList courseId={courseId ?? ""} isDrawer={true} onClose={() => fetchCourse()} />
-            </DialogContent>
-          </Dialog>
-        </div>
-        <ModuleList courseId={courseId ?? ""} />
-
-        {/* Footer Actions */}
-        <div className="flex justify-end space-x-4">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline">Assign Instructor</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Assign Instructor</DialogTitle>
-              </DialogHeader>
-              <AssignInstructor courseId={courseId ?? ""} onClose={() => fetchCourse()} />
-            </DialogContent>
-          </Dialog>
-          <Button>Edit Course</Button>
-        </div>
+        <CourseDetailsSection course={course} />
+        <Separator />
+        <ModuleSection courseId={courseId ?? ""} refreshCourse={fetchCourse} />
+        <Separator />
+        <FooterActions courseId={courseId ?? ""} refreshCourse={fetchCourse} />
       </div>
     </div>
   );
 }
 
 export default CourseDetails;
+
+// Reusable components
+
+const LoadingScreen = ({ message }: { message: string }) => (
+  <div className="flex justify-center items-center h-screen">{message}</div>
+);
+
+const ErrorScreen = ({ message }: { message: string }) => (
+  <div className="flex justify-center items-center h-screen text-red-500">Error: {message}</div>
+);
+
+const NotFoundScreen = ({ message }: { message: string }) => (
+  <div className="flex justify-center items-center h-screen">{message}</div>
+);
+
+const CourseHeader = ({ course }: { course: Course }) => (
+  <div className="flex justify-between items-start">
+    <div className="flex gap-2">
+      <h1 className="text-3xl font-bold">{course.title}</h1>
+      <p className="text-xl text-muted-foreground mt-2">({course.course_code})</p>
+    </div>
+    <Badge variant={course.is_active ? "destructive" : "default"}>{course.is_active ? "Active" : "Inactive"}</Badge>
+  </div>
+);
+
+const CourseDetailsSection = ({ course }: { course: Course }) => (
+  <div className="space-y-4">
+    <h2 className="text-xl font-semibold">Course Details</h2>
+    <p>{course.description}</p>
+    <div className="flex items-center space-x-4">
+      <CourseDate icon={CalendarIcon} label="Start" date={course.start_date} />
+      <CourseDate icon={CalendarIcon} label="End" date={course.end_date} />
+    </div>
+    <div className="flex items-center space-x-2">
+      <Users className="h-5 w-5 text-muted-foreground" />
+      <span>
+        Available Slots: {course.available_slots}/{course.max_students}
+      </span>
+    </div>
+    {course.instructor && (
+      <div className="flex items-center space-x-2">
+        <BookOpen className="h-5 w-5 text-muted-foreground" />
+        <span>Instructor: {course.instructor}</span>
+      </div>
+    )}
+  </div>
+);
+
+const CourseDate = ({ icon: Icon, label, date }: { icon: typeof CalendarIcon; label: string; date: string }) => (
+  <div className="flex items-center space-x-2">
+    <Icon className="h-5 w-5 text-muted-foreground" />
+    <span>
+      {label}: {new Date(date).toLocaleDateString()}
+    </span>
+  </div>
+);
+
+const ModuleSection = ({ courseId, refreshCourse }: { courseId: string; refreshCourse: () => void }) => (
+  <>
+    <div className="flex justify-between items-center">
+      <h2 className="text-xl font-semibold">Modules</h2>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>Add Module</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Module</DialogTitle>
+          </DialogHeader>
+          <ModuleList courseId={courseId} isDrawer={true} onClose={refreshCourse} />
+        </DialogContent>
+      </Dialog>
+    </div>
+
+    <ModuleList courseId={courseId} />
+  </>
+);
+
+const FooterActions = ({ courseId, refreshCourse }: { courseId: string; refreshCourse: () => void }) => (
+  <div className="flex justify-end space-x-4">
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Assign Instructor</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Assign Instructor</DialogTitle>
+        </DialogHeader>
+        <AssignInstructor courseId={courseId} onClose={refreshCourse} />
+      </DialogContent>
+    </Dialog>
+    <Button>Edit Course</Button>
+  </div>
+);
