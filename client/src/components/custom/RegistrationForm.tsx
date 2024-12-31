@@ -18,9 +18,9 @@ export function RegistrationForm() {
     username: "",
     email: "",
     password: "",
-    firstName: "",
-    lastName: "",
-    userType: "",
+    first_name: "",
+    last_name: "",
+    user_type: "",
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export function RegistrationForm() {
   };
 
   const handleSelectChange = (value: string) => {
-    setFormData({ ...formData, userType: value });
+    setFormData({ ...formData, user_type: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,6 +46,7 @@ export function RegistrationForm() {
 
   return (
     <CardComponent
+      className="w-full max-w-md"
       title="Register"
       description="Create your account to get started."
       footer={
@@ -79,16 +80,16 @@ export function RegistrationForm() {
             />
           </div>
           <div className="flex flex-col space-y-1.5">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
+            <Label htmlFor="first_name">First Name</Label>
+            <Input id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} required />
           </div>
           <div className="flex flex-col space-y-1.5">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
+            <Label htmlFor="last_name">Last Name</Label>
+            <Input id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} required />
           </div>
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="userType">User Type</Label>
-            <Select onValueChange={handleSelectChange} value={formData.userType}>
+            <Select onValueChange={handleSelectChange} value={formData.user_type}>
               <SelectTrigger id="userType">
                 <SelectValue placeholder="Select User Type" />
               </SelectTrigger>

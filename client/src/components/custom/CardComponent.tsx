@@ -6,12 +6,12 @@ interface CardProps {
   description?: string;
   children: ReactNode;
   footer: ReactNode;
-  width?: string;
+  className?: string;
 }
 
-export function CardComponent({ title, description, children, footer, width = "[350px]" }: CardProps) {
+export function CardComponent({ title, description, children, footer, className }: CardProps) {
   return (
-    <Card className={`w-${width}`}>
+    <Card className={className}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>

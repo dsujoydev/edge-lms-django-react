@@ -1,19 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+// import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import api from "@/utils/api";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 interface AssignInstructorProps {
   courseId: string;
   onClose?: () => void;
 }
 
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  user_type: string;
+  bio: string;
+}
+
 export function AssignInstructor({ courseId, onClose }: AssignInstructorProps) {
   const [instructorId, setInstructorId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await api.get("/api/users/list/");
+        console.log(response);
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching user list:", error);
+      } finally {
+        // setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleAssignInstructor = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,14 +68,21 @@ export function AssignInstructor({ courseId, onClose }: AssignInstructorProps) {
   return (
     <form onSubmit={handleAssignInstructor} className="space-y-4">
       <div>
-        <Label htmlFor="instructorId">Instructor ID</Label>
-        <Input
-          id="instructorId"
-          type="number"
-          value={instructorId}
-          onChange={(e) => setInstructorId(e.target.value)}
-          required
-        />
+        {/* <Label htmlFor="instructorId">Instructor</Label> */}
+        <Select onValueChange={(value) => setInstructorId(value)} value={instructorId}>
+          <SelectTrigger id="instructorId">
+            <SelectValue placeholder="Select Instructor" />
+          </SelectTrigger>
+          <SelectContent position="popper">
+            {users
+              .filter((type) => type.user_type === "instructor")
+              .map((type) => (
+                <SelectItem key={type.id} value={type.id.toString()}>
+                  {type.first_name} {type.last_name}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
       </div>
       {error && <p className="text-red-500">{error}</p>}
       <Button type="submit">Assign Instructor</Button>

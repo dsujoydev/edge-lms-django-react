@@ -44,7 +44,7 @@ export function ModuleList({ courseId, isDrawer = false, onClose }: ModuleListPr
 
   useEffect(() => {
     fetchModules();
-  });
+  }, [courseId]);
 
   const handleAddModule = async (e: React.FormEvent) => {
     e.preventDefault();

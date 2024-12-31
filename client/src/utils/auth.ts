@@ -34,9 +34,9 @@ export async function registerUser(userData: {
   username: string;
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
-  userType: string;
+  first_name: string;
+  last_name: string;
+  user_type: string;
 }) {
   try {
     const response = await api.post("/api/users/register/", userData);

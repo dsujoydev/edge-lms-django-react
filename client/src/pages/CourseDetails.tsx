@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -31,7 +31,11 @@ function CourseDetails() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchCourse = useCallback(async () => {
+  useEffect(() => {
+    fetchCourse();
+  }, [courseId]);
+
+  const fetchCourse = async () => {
     try {
       const response = await api.get(`/api/courses/${courseId}/`);
       setCourse(response.data);
@@ -46,16 +50,7 @@ function CourseDetails() {
     } finally {
       setLoading(false);
     }
-  }, [courseId, toast]);
-
-  useEffect(() => {
-    if (courseId) {
-      fetchCourse();
-    } else {
-      setError("Course ID is missing.");
-      setLoading(false);
-    }
-  }, [courseId, fetchCourse]);
+  };
 
   if (loading) return <LoadingScreen message="Loading course details..." />;
   if (error) return <ErrorScreen message={error} />;
@@ -151,7 +146,7 @@ const ModuleSection = ({ courseId, refreshCourse }: { courseId: string; refreshC
       </Dialog>
     </div>
 
-    <ModuleList courseId={courseId} />
+    <ModuleList courseId={courseId} onClose={refreshCourse} />
   </>
 );
 
