@@ -22,35 +22,35 @@ Edge LMS is a Learning Management System built using Django for the backend and 
 
 ## Installation
 
-# Step 1: Clone the repository
+### Step 1: Clone the repository
 
 git clone https://github.com/dsujoydev/edge-lms-django-react.git
 
-# Step 2: Navigate to the backend folder
+### Step 2: Navigate to the backend folder
 
 cd backend
 
-# Step 3: Install Python dependencies
+### Step 3: Install Python dependencies
 
 pip install -r requirements.txt
 
-# Step 4: Start the Django development server
+### Step 4: Start the Django development server
 
 python manage.py runserver
 
-# Step 5: Navigate back to the project root
+### Step 5: Navigate back to the project root
 
 cd -
 
-# Step 6: Navigate to the frontend folder
+### Step 6: Navigate to the frontend folder
 
 cd frontend
 
-# Step 7: Install frontend dependencies
+### Step 7: Install frontend dependencies
 
 pnpm install
 
-# Step 8: Start the React development server
+### Step 8: Start the React development server
 
 pnpm run dev
 
