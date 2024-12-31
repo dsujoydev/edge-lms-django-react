@@ -47,4 +47,52 @@ Here are some screenshots showing how the APIs are tested using Postman:
 Below are some screenshots of the frontend interface demonstrating the API integration:
 
 ![Frontend Interface](path/to/frontend-screenshot1.png)
+
+### User Registration API
+
+#### URL
+
+`/api/users/register/`
+
+#### Method
+
+`POST`
+
+#### Description
+
+This endpoint is used to register a new user in the system.
+
+#### Payload
+
+````markdown
+#### Payload
+
+```json
+{
+  "username": "string",
+  "email": "string",
+  "password": "string"
+}
+```
+````
+
+#### Response
+
+```json
+{
+  "id": "integer",
+  "username": "string",
+  "email": "string",
+  "token": "string"
+}
+```
+
+### Frontend Interface
+
+Below are some screenshots of the frontend interface demonstrating the API integration:
+
 ![Frontend Interface](path/to/frontend-screenshot2.png)
+
+```
+
+```

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { CourseCard } from "../layout/CourseCard";
 import { Button } from "@/components/ui/button";
-// import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +12,6 @@ import {
 
 import api from "@/utils/api";
 import { CreateCourseForm } from "./CreateCourseForm";
-// import { useToast } from "@/hooks/use-toast";
 
 interface Module {
   id: number;
@@ -30,31 +28,29 @@ interface Course {
   title: string;
   description: string;
   short_description: string;
-  instructor: string | null; // Nullable
+  instructor: string | null;
   instructor_name: string;
   enrolled_students_count: number;
   is_enrolled: boolean;
-  modules?: Module[]; // Array of Module objects
+  modules?: Module[]; // Ensure consistency
   is_active: boolean;
-  start_date: string; // ISO date string
-  end_date: string; // ISO date string
+  start_date: string;
+  end_date: string;
   max_students: number;
   available_slots: number;
-  created_at: string; // ISO timestamp string
+  created_at: string;
 }
 
 export function CoursesList() {
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courseData, setCourseData] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // const navigate = useNavigate();
-  // const { toast } = useToast();
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const response = await api.get("/api/courses/");
-        setCourses(response.data);
+        setCourseData(response.data);
         setIsLoading(false);
       } catch (err) {
         console.log("Error fetching courses:", err);
@@ -93,8 +89,8 @@ export function CoursesList() {
         </Dialog>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => (
-          <CourseCard key={course.id} courseData={course} />
+        {courseData.map((course) => (
+          <CourseCard key={course.id} courseProps={course} />
         ))}
       </div>
     </div>

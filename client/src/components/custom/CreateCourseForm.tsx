@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { CardComponent } from "./CardComponent";
@@ -40,11 +39,6 @@ export function CreateCourseForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  //   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     const { name, checked } = e.target;
-  //     setFormData(prev => ({ ...prev, [name]: checked }));
-  //   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -70,9 +64,6 @@ export function CreateCourseForm() {
 
   return (
     <CardComponent
-      //   title="Create New Course"
-      //   description="Enter the details for the new course."
-      width="full"
       footer={
         <>
           <Button type="submit" form="create-course-form" className="w-full">
@@ -93,7 +84,7 @@ export function CreateCourseForm() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" value={formData.description} onChange={handleChange} required />
+          <Input id="description" name="description" value={formData.description} onChange={handleChange} required />
         </div>
         <div className="space-y-2">
           <Label htmlFor="short_description">Short Description</Label>
@@ -105,30 +96,41 @@ export function CreateCourseForm() {
             required
           />
         </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="is_active"
-            name="is_active"
-            checked={formData.is_active}
-            onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_active: checked as boolean }))}
-          />
-          <Label htmlFor="is_active">Active</Label>
+        <div className="space-y-2 flex justify-around items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="is_active"
+              name="is_active"
+              checked={formData.is_active}
+              onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_active: checked as boolean }))}
+            />
+            <Label htmlFor="is_active">Active</Label>
+          </div>
+          <div>
+            <Label htmlFor="start_date">Start Date</Label>
+            <Input
+              id="start_date"
+              name="start_date"
+              type="date"
+              value={formData.start_date}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="end_date">End Date</Label>
+            <Input
+              width="full"
+              id="end_date"
+              name="end_date"
+              type="date"
+              value={formData.end_date}
+              onChange={handleChange}
+              required
+            />
+          </div>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="start_date">Start Date</Label>
-          <Input
-            id="start_date"
-            name="start_date"
-            type="date"
-            value={formData.start_date}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="end_date">End Date</Label>
-          <Input id="end_date" name="end_date" type="date" value={formData.end_date} onChange={handleChange} required />
-        </div>
+
         <div className="space-y-2">
           <Label htmlFor="max_students">Maximum Students</Label>
           <Input

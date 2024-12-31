@@ -25,10 +25,6 @@ export function ModuleList({ courseId, isDrawer = false, onClose }: ModuleListPr
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchModules();
-  }, [courseId]);
-
   const fetchModules = async () => {
     try {
       const response = await api.get(`/api/modules/?course_id=${courseId}`);
@@ -45,6 +41,10 @@ export function ModuleList({ courseId, isDrawer = false, onClose }: ModuleListPr
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchModules();
+  });
 
   const handleAddModule = async (e: React.FormEvent) => {
     e.preventDefault();
