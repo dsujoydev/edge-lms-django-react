@@ -40,13 +40,11 @@ For any inquiries, please contact us at [dsujoy.cse@gmail.com](mailto:dsujoy.cse
 
 Here are some screenshots showing how the APIs are tested using Postman:
 
-![Postman API Testing](screenshots/users/register.png)
-
-### Frontend Interface
+<!-- ### Frontend Interface
 
 Below are some screenshots of the frontend interface demonstrating the API integration:
 
-![Frontend Interface](path/to/frontend-screenshot1.png)
+![Frontend Interface](path/to/frontend-screenshot1.png) -->
 
 ### User Registration API
 
@@ -76,16 +74,7 @@ This endpoint is used to register a new user in the system.
 }
 ```
 
-#### Response
-
-```json
-{
-  "id": "integer",
-  "username": "string",
-  "email": "string",
-  "token": "string"
-}
-```
+![Postman API Testing](screenshots/users/register.png)
 
 ### User Token API
 
@@ -109,6 +98,8 @@ This endpoint is used to obtain a token for an authenticated user.
   "password": "12345"
 }
 ```
+
+![Postman API Testing](screenshots/users/token.png)
 
 ### Token Refresh API
 
@@ -161,6 +152,8 @@ This endpoint returns the profile of the logged-in user.
 }
 ```
 
+![Postman API Testing](screenshots/users/profile.png)
+
 ### User List API
 
 #### URL
@@ -174,6 +167,8 @@ This endpoint returns the profile of the logged-in user.
 #### Description
 
 This endpoint returns a list of all registered users.
+
+![Postman API Testing](screenshots/users/userlist.png)
 
 ### Course Registration API
 
@@ -204,6 +199,8 @@ This endpoint is used to register a new course.
 }
 ```
 
+![Postman API Testing](screenshots/courses/coursecreate.png)
+
 ### Course List API
 
 #### URL
@@ -218,11 +215,13 @@ This endpoint is used to register a new course.
 
 This endpoint returns a list of all courses.
 
+![Postman API Testing](screenshots/courses/courselist.png)
+
 ### Single Course API
 
 #### URL
 
-`http://127.0.0.1:8000/api/courses/6/`
+`http://127.0.0.1:8000/api/courses/:id/`
 
 #### Method
 
@@ -231,6 +230,8 @@ This endpoint returns a list of all courses.
 #### Description
 
 This endpoint returns details of a single course.
+
+![Postman API Testing](screenshots/courses/courseone.png)
 
 ### Module Creation API
 
@@ -256,6 +257,8 @@ This endpoint is used to create a new module for a course.
 }
 ```
 
+![Postman API Testing](screenshots/courses/modulecreate.png)
+
 ### Assign Instructor API
 
 #### URL
@@ -277,6 +280,8 @@ This endpoint is used to assign an instructor to a course.
   "instructor_id": 6
 }
 ```
+
+![Postman API Testing](screenshots/courses/assigninstructor.png)
 
 ### Delete Course API
 
