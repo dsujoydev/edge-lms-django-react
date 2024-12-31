@@ -75,6 +75,7 @@ This endpoint is used to register a new user in the system.
 ```
 
 ![Postman API Testing](screenshots/users/register.png)
+![Postman API Testing](screenshots/frontend/registerUI.png)
 
 ### User Token API
 
@@ -100,6 +101,7 @@ This endpoint is used to obtain a token for an authenticated user.
 ```
 
 ![Postman API Testing](screenshots/users/token.png)
+![Postman API Testing](screenshots/frontend/signinUI.png)
 
 ### Token Refresh API
 
@@ -153,6 +155,7 @@ This endpoint returns the profile of the logged-in user.
 ```
 
 ![Postman API Testing](screenshots/users/profile.png)
+![Postman API Testing](screenshots/frontend/loginLanding.png)
 
 ### User List API
 
@@ -169,6 +172,7 @@ This endpoint returns the profile of the logged-in user.
 This endpoint returns a list of all registered users.
 
 ![Postman API Testing](screenshots/users/userlist.png)
+![Postman API Testing](screenshots/frontend/userListUI.png)
 
 ### Course Registration API
 
@@ -200,6 +204,7 @@ This endpoint is used to register a new course.
 ```
 
 ![Postman API Testing](screenshots/courses/coursecreate.png)
+![Postman API Testing](screenshots/frontend/courseAddUI.png)
 
 ### Course List API
 
@@ -216,6 +221,7 @@ This endpoint is used to register a new course.
 This endpoint returns a list of all courses.
 
 ![Postman API Testing](screenshots/courses/courselist.png)
+![Postman API Testing](screenshots/frontend/courseListUI.png)
 
 ### Single Course API
 
@@ -232,6 +238,7 @@ This endpoint returns a list of all courses.
 This endpoint returns details of a single course.
 
 ![Postman API Testing](screenshots/courses/courseone.png)
+![Postman API Testing](screenshots/frontend/CourseDetailsUI.png)
 
 ### Module Creation API
 
@@ -258,6 +265,7 @@ This endpoint is used to create a new module for a course.
 ```
 
 ![Postman API Testing](screenshots/courses/modulecreate.png)
+![Postman API Testing](screenshots/frontend/moduleAddUI.png)
 
 ### Assign Instructor API
 
@@ -282,6 +290,7 @@ This endpoint is used to assign an instructor to a course.
 ```
 
 ![Postman API Testing](screenshots/courses/assigninstructor.png)
+![Postman API Testing](screenshots/frontend/assignInstructorUI.png)
 
 ### Delete Course API
 
