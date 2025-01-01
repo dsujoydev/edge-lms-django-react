@@ -1,10 +1,10 @@
 import axios from "axios";
 import { refreshAccessToken } from "./auth";
 
-const choreoApi = "/choreo-apis/lmsdjangoreact/lms-backend/v1";
+const onlineServer: string = "https://edge-lms-django-react.onrender.com";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL : (choreoApi as string),
+  baseURL: import.meta.env.VITE_API_URL || onlineServer,
   headers: {
     "Content-Type": "application/json",
   },
