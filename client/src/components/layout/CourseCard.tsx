@@ -1,37 +1,6 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-
-interface Module {
-  id: number;
-  title: string;
-  description: string;
-  order: number;
-  is_published: boolean;
-  course: string;
-}
-
-interface Course {
-  id: number | string;
-  course_code: string;
-  title: string;
-  description: string;
-  short_description: string;
-  instructor: string | null;
-  instructor_name: string;
-  enrolled_students_count: number;
-  is_enrolled: boolean;
-  modules?: Module[]; // Ensure consistency with the optional `modules` property
-  is_active: boolean;
-  start_date: string;
-  end_date: string;
-  max_students: number;
-  available_slots: number;
-  created_at: string;
-}
-
-interface CourseCardProps {
-  courseProps: Course; // Ensure the type is consistent
-}
+import { CourseCardProps } from "@/types/layout.type";
 
 export function CourseCard({ courseProps }: CourseCardProps) {
   const navigate = useNavigate();

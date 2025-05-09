@@ -2,11 +2,7 @@ import { ReactNode } from "react";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 
-interface DashboardLayoutProps {
-  children: ReactNode;
-}
-
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-background w-full">
       <Header />

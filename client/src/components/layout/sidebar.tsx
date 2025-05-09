@@ -1,17 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { NavItem, Role } from "@/types/layout.type";
 import { useNavigate } from "react-router-dom";
 
 // Define role types
-type Role = "admin" | "instructor" | "student";
-
-// Define the structure of a navigation item
-interface NavItem {
-  icon: string;
-  label: string;
-  href: string;
-}
 
 // Define the navigation items object with strict typing
 const navItems: Record<Role, NavItem[]> = {
