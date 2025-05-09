@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 interface CardProps {
   title?: string;
-  description?: string;
+  description?: string | ReactNode;
   children: ReactNode;
   footer: ReactNode;
   className?: string;
