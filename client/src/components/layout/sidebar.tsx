@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 
@@ -35,12 +36,10 @@ const navItems: Record<Role, NavItem[]> = {
 };
 
 // Sidebar component
-interface SidebarProps {
-  role: Role; // Expect a specific role
-}
 
-export function Sidebar({ role }: SidebarProps) {
-  const items = navItems[role] || [];
+export function Sidebar() {
+  const { user } = useAuth();
+  const items = user?.user_type ? navItems[user.user_type as Role] : [];
   const navigate = useNavigate();
 
   return (

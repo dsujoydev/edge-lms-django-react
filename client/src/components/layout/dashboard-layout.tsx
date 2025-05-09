@@ -11,7 +11,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="min-h-screen flex flex-col bg-background w-full">
       <Header />
       <div className="flex flex-1">
-        <Sidebar role="admin" />
+        <Sidebar />
         <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
     </div>

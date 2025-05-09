@@ -2,16 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { registerUser } from "../../utils/auth";
 import { CardComponent } from "./CardComponent";
-
-const USER_TYPES = [
-  { value: "student", label: "Student" },
-  { value: "instructor", label: "Instructor" },
-  { value: "admin", label: "Administrator" },
-];
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function RegistrationForm() {
   const [formData, setFormData] = useState({
@@ -20,27 +15,35 @@ export function RegistrationForm() {
     password: "",
     first_name: "",
     last_name: "",
-    user_type: "",
+    user_type: "student", // Set default user type to student
   });
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSelectChange = (value: string) => {
-    setFormData({ ...formData, user_type: value });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
     try {
       await registerUser(formData);
+      toast({
+        title: "Registration Successful",
+        description: "Your account has been created successfully.",
+        variant: "default",
+      });
       navigate("/login");
     } catch (err) {
       setError("Registration failed. Please try again.");
       console.log(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -51,8 +54,15 @@ export function RegistrationForm() {
       description="Create your account to get started."
       footer={
         <>
-          <Button className="w-full" type="submit" onClick={handleSubmit}>
-            Register
+          <Button className="w-full" type="submit" onClick={handleSubmit} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Registering...
+              </>
+            ) : (
+              "Register"
+            )}
           </Button>
           {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
         </>
@@ -86,21 +96,6 @@ export function RegistrationForm() {
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="last_name">Last Name</Label>
             <Input id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} required />
-          </div>
-          <div className="flex flex-col space-y-1.5">
-            <Label htmlFor="userType">User Type</Label>
-            <Select onValueChange={handleSelectChange} value={formData.user_type}>
-              <SelectTrigger id="userType">
-                <SelectValue placeholder="Select User Type" />
-              </SelectTrigger>
-              <SelectContent position="popper">
-                {USER_TYPES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </form>
