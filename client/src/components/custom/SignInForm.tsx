@@ -33,6 +33,13 @@ export function SignInForm() {
     }
   };
 
+  const useTestCredentials = () => {
+    setFormData({
+      username: "testuser",
+      password: "test@123"
+    });
+  };
+
   return (
     <CardComponent
       title="Sign In"
@@ -41,6 +48,14 @@ export function SignInForm() {
         <>
           <Button className="w-full" type="submit" onClick={handleSubmit}>
             Sign In
+          </Button>
+          <Button 
+            className="w-full mt-2" 
+            type="button" 
+            variant="outline" 
+            onClick={useTestCredentials}
+          >
+            Use Test Account
           </Button>
           {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
           <p className="text-sm mt-2">

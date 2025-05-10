@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 const navItems: Record<Role, NavItem[]> = {
   admin: [
     { icon: "", label: "Overview", href: "/dashboard" },
-    { icon: "", label: "Users", href: "/dashboard/users" },
+    // { icon: "", label: "Users", href: "/dashboard/users" },
     { icon: "", label: "Courses", href: "/dashboard/courses" },
     { icon: "", label: "Settings", href: "/settings" },
   ],
