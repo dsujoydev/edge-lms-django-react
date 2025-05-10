@@ -7,19 +7,9 @@ import { Label } from "@/components/ui/label";
 import { CardComponent } from "./CardComponent";
 import api from "@/utils/api";
 import { useToast } from "@/hooks/use-toast";
+import { CourseData } from "@/types/course.type";
 
-interface CourseData {
-  course_code: string;
-  title: string;
-  description: string;
-  short_description: string;
-  is_active: boolean;
-  start_date: string;
-  end_date: string;
-  max_students: number;
-}
-
-export function CreateCourseForm() {
+export function CreateCourseForm({ onSuccess }: { onSuccess?: () => void }) {
   const [formData, setFormData] = useState<CourseData>({
     course_code: "",
     title: "",
@@ -49,10 +39,15 @@ export function CreateCourseForm() {
       });
 
       if (response.status === 201) {
-        navigate("/dashboard/courses");
         toast({ title: "Course Created", description: "The course has been created successfully." });
 
-        // Assuming you have a courses list page
+        // Call the onSuccess callback if provided
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          // Navigate only if onSuccess is not provided
+          navigate("/dashboard/courses");
+        }
       } else {
         setError("Failed to create course. Please try again.");
       }

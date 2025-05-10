@@ -129,7 +129,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
-        default='postgresql://neondb_owner:fyFSUakI67rD@ep-fragrant-art-a1q9johu-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require',
+        default=os.getenv("DATABASE_URL"),
         conn_max_age=600
     )
 }
