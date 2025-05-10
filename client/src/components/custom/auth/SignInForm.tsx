@@ -3,8 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginUser } from "../../utils/auth";
-import { CardComponent } from "./CardComponent";
+import { loginUser } from "../../../utils/auth";
+import { CardComponent } from "../CardComponent";
 import { useAuth } from "@/hooks/useAuth";
 
 export function SignInForm() {
@@ -36,7 +36,7 @@ export function SignInForm() {
   const useTestCredentials = () => {
     setFormData({
       username: "testuser",
-      password: "test@123"
+      password: "test@123",
     });
   };
 
@@ -49,12 +49,7 @@ export function SignInForm() {
           <Button className="w-full" type="submit" onClick={handleSubmit}>
             Sign In
           </Button>
-          <Button 
-            className="w-full mt-2" 
-            type="button" 
-            variant="outline" 
-            onClick={useTestCredentials}
-          >
+          <Button className="w-full mt-2" type="button" variant="outline" onClick={useTestCredentials}>
             Use Test Account
           </Button>
           {error && <p className="text-sm text-red-500 mt-2">{error}</p>}

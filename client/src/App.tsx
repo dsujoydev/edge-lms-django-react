@@ -1,8 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
-import { RegistrationForm } from "./components/custom/RegistrationForm";
-import { SignInForm } from "./components/custom/SignInForm";
+import { RegistrationForm } from "./components/custom/auth/RegistrationForm";
+import { SignInForm } from "./components/custom/auth/SignInForm";
 import { useAuth } from "./hooks/useAuth";
 import { DashboardLayout } from "./components/layout/dashboard-layout";
 import { CoursesList } from "./components/custom/CoursesList";

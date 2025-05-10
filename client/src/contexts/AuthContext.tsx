@@ -1,32 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import { fetchUserProfile } from "../utils/auth";
-
-enum UserType {
-  STUDENT = "student",
-  INSTRUCTOR = "instructor",
-  ADMIN = "administrator",
-}
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  user_type: UserType;
-  profilePicture?: string | null;
-  bio?: string;
-  dateJoined?: string;
-  isActive?: boolean;
-}
-
-interface AuthContextType {
-  user: User | null;
-  login: (accessToken: string, refreshToken: string) => Promise<void>;
-  logout: () => void;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-}
+import { AuthContextType, User } from "@/types/auth.type";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

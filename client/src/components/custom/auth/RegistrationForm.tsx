@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { registerUser } from "../../utils/auth";
-import { CardComponent } from "./CardComponent";
+import { registerUser } from "../../../utils/auth";
+import { CardComponent } from "../CardComponent";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 

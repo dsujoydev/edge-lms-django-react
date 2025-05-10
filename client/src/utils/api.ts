@@ -1,10 +1,8 @@
 import axios from "axios";
 import { refreshAccessToken } from "./auth";
 
-const onlineServer: string = "https://edge-lms-django-react.onrender.com";
-
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || onlineServer,
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
